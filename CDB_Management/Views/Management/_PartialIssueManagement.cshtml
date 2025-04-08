@@ -1,0 +1,111 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model CDB_Management.Models.Management.IssueManagementViewModel
+<div class="container" style="padding: 0;">
+    <div style="padding:0;"></div>
+    <div class="row" style="padding: 0; margin:0; background-color:lightgray;">
+        <div class="col-md-12 modelTopic" id="topic_term" style="    background: orange;">
+            <h2>Issue Information</h2>
+        </div>
+    </div>
+    <div id="terminal-info" style="display:block;">
+        <div class="row" style="padding-top:15px;">
+            <div class="col-md-1">
+            </div>
+            <div class="col-md-2 modelTopic">
+                <label for="JOB_ID">JOB ID </label>&nbsp;:&nbsp;
+            </div>
+            <div class="col-md-3 modelTextbox">
+                @Html.TextBoxFor(m => Model.issueManagement.job_id, new { @class = "w-100 form-control", @readonly = "true" })
+            </div>
+            <div class="col-md-2 modelTopic">
+                <label for="main_problem">Main Problem</label>&nbsp;:&nbsp;
+            </div>
+            <div class="col-md-3 modelTextbox">
+                @Html.TextBoxFor(m => Model.issueManagement.mainproblem_name, new { @class = "w-100 form-control", @readonly = "true" })
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-md-1">
+            </div>
+            <div class="col-md-2 modelTopic">
+                <label for="contract_no">Contract No</label>
+            </div>
+            <div class="col-md-8 modelTextbox">
+                @Html.TextBoxFor(m => Model.issueManagement.contract_no, new { @class = "w-100 form-control", @readonly = "true" })
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-1">
+            </div>
+            <div class="col-md-2 modelTopic">
+                <label for="problem_inform">Problem Inform</label>&nbsp;:&nbsp;
+            </div>
+            <div class="col-md-8 modelTextbox">
+                @Html.TextAreaFor(m => Model.issueManagement.problem_inform, new { @class = "auto-resize form-control", @style = "resize:none; overflow:hidden; height:auto;", @readonly = "true" })
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-md-1">
+            </div>
+            <div class="col-md-2 modelTopic">
+                <label for="open_date">Open Date</label>&nbsp;:&nbsp;
+            </div>
+            <div class="col-md-3 modelTextbox">
+                @Html.TextBoxFor(m => Model.issueManagement.open_date, new { @class = "w-100 form-control", @readonly = "true" })
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-1">
+            </div>
+
+            <div class="col-md-2 modelTopic">
+                <label for="problem_solution">Problem Solution</label>&nbsp;:&nbsp;
+            </div>
+            <div class="col-md-8 modelTextbox">
+                @Html.TextAreaFor(m => Model.issueManagement.problem_solution, new { @class = "auto-resize form-control", @style = "resize:none; overflow:hidden; height:auto;", @readonly = "true" })
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-1">
+            </div>
+            <div class="col-md-2 modelTopic">
+                <label for="main_solution">Main Solution </label>&nbsp;:&nbsp;
+            </div>
+            <div class="col-md-8 modelTextbox">
+                @Html.TextBoxFor(m => Model.issueManagement.mainsolution_name, new { @class = "w-100 form-control", @readonly = "true" })
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-1">
+            </div>
+            <div class="col-md-2 modelTopic">
+                <label for="sub_problem">Sub Problem</label>&nbsp;:&nbsp;
+            </div>
+            <div class="col-md-8 modelTextbox">
+                @Html.TextBoxFor(m => Model.issueManagement.subproblem_name, new { @class = "w-100 form-control", @readonly = "true" })
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-1">
+            </div>
+            <div class="col-md-2 modelTopic">
+                <label for="sub_Solution">Sub Solution </label>&nbsp;:&nbsp;
+            </div>
+            <div class="col-md-8 modelTextbox">
+                @Html.TextBoxFor(m => Model.issueManagement.subsolution_name, new { @class = "w-100 form-control", @readonly = "true" })
+            </div>
+
+        </div>
+
+
+    </div>
+</div>

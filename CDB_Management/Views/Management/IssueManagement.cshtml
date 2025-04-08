@@ -1,0 +1,792 @@
+﻿@using System.Globalization
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model CDB_Management.Models.Management.IssueManagementViewModel
+@{
+    ViewData["Title"] = "Issue Mangement";
+    string[] tableHeaders = new string[]{
+    "Job ID",
+    "Action",
+    "Contract No",
+    "Problem Inform",
+    "Main Problem",
+    "Open Date",
+    "Problem Solution",
+    };
+}
+@*
+    "Main Solution",
+    "Sub Problem",
+    "Sub Solution"
+*@
+<style>
+
+     #header_search {
+         top: 20px;
+         position: relative;
+         background-color: orange;
+         border: solid;
+         padding: 8px 40px 8px 40px;
+         border-radius: 12px;
+         font-weight: 700;
+     }
+
+     .item {
+         padding: 0px;
+     }
+
+     #submit {
+         position: relative;
+         top: 50px;
+         background: lightgray;
+         border: 10px double white;
+         border-radius: 20px;
+         padding: 0px 10px 0px 10px;
+     }
+
+     #before-submit {
+         display: flex;
+         justify-content: center;
+         margin-top: -33px;
+     }
+
+     #main_search {
+         margin-bottom: 50px;
+         padding: 30px 0;
+         margin-left: 50px;
+         margin-right: 50px;
+         border: 3px solid #888888;
+         background-color: white;
+         border-radius: 50px;
+     }
+
+     th {
+         text-align: center;
+     }
+
+     .pagination li.active {
+         background-color: #ffc107;
+         font-weight: bold;
+         border-color: #ffc107;
+     }
+
+
+    option:hover {
+         box-shadow: 0 0 10px 100px #ffc107 inset;
+         transition: all .2s ease-in-out;
+     }
+
+     option:checked {
+         box-shadow: 0 0 10px 100px #ffc107 inset !important;
+     }
+
+     #dropArea.dragOver {
+         background-color: #eee;
+     }
+
+     input.form-control {
+         -webkit-appearance: button;
+         border-radius: 10px;
+     }
+     .loading {
+        background-color: rgba(255, 255, 255, 0.5);
+        position: fixed;
+        top: 0px;
+        right: 0px;
+        bottom: 0px;
+        left: 0px;
+        pointer-events: none;
+        z-index: 10;
+    }
+
+    .imgLoading {
+        position: sticky;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+</style>
+<style>
+    .modal1 {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1055;
+        display: none;
+        width: 100%;
+        height: 100%;
+        overflow-x: hidden;
+        overflow-y: auto;
+        outline: 0;
+    }
+    /* General Styles for the Modal */
+    .modal {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+    }
+
+    /* Modal Content Styles */
+    .alert-modal .modal-content {
+        background: #ffc107;
+        padding: 40px 60px;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4); /* Shadow effect */
+        color: white;
+        animation: zoomIn 0.5s ease-in-out; /* Zoom-in animation */
+        max-width: 400px; /* Maximum width */
+        width: 100%; /* Make sure the width is flexible */
+        box-sizing: border-box; /* Ensure padding doesn't break width calculation */
+    }
+
+    /* Modal Title */
+    .alert-modal .modal-content h2 {
+        font-family: 'Arial', sans-serif;
+        font-size: 30px;
+        margin-bottom: 20px;
+    }
+
+    /* Modal Message */
+    .alert-modal .modal-content p {
+        font-size: 18px;
+        margin-bottom: 30px;
+    }
+
+    /* Custom Modal Button */
+    .alert-modal .modal-btn {
+        background: #fd7e14; /* Orange background for button */
+        color: white;
+        padding: 12px 30px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        transition: background 0.3s ease, transform 0.2s ease; /* Button transition effect */
+    }
+
+    /* Button Hover Effect */
+    .alert-modal .modal-btn:hover {
+        background: #ff5722; /* Darker orange */
+        transform: scale(1.1); /* Slight scale-up effect */
+    }
+
+
+</style>
+
+
+
+<div class="container w-auto containerHeader">
+    <div class="row">
+        <div class="col col-md-1">
+        </div>
+        <div class="col col-md-4">
+            <a class="text-white fs-4" id="header_search">Issue Management</a>
+        </div>
+    </div>
+    <div id="main_search">
+        @using (Html.BeginForm("IssueManagement", "Management", FormMethod.Get, new { id = "myForm" }))
+        {
+            <div class="row" style="margin-top: 45px;align-items:center; display: flex;justify-content: space-around;padding:0vw 3vw 0vw 3vw;white-space:nowrap;">
+                <div class="col-md-1">
+                    <label>Bank : </label>
+                </div>
+                <div class="item col-md-2" style="border-color:#ced4da; background-color: transparent;">
+                    <select class="selectpicker form-control" id="bank" name="bank" data-live-search="true">
+                        <option data-tokens="" value="">--</option>
+                        <option data-tokens="icbc" value="icbc">ICBC</option>
+                        <option data-tokens="baac" value="baac">BAAC</option>
+                        <option data-tokens="boct" value="boct">BOC</option>
+                        <option data-tokens="ghb" value="ghb">GHB</option>
+                        <option data-tokens="gsb" value="gsb">GSB</option>
+                    </select>
+                </div>
+                <div class="col-md-1">
+                    <label>From Date : </label>
+
+                </div>
+                @{
+                    var previousYearFirstDate = new DateTime(DateTime.Now.Year - 1, 1, 1);
+                }
+                <div class="item col-md-2" style="border-color:#ced4da; background-color: transparent;">
+                    @Html.TextBox("fromdate", previousYearFirstDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), new { @class = "form-control", @type = "Date", @placeholder = "yyyy-MM-dd" })
+                </div>
+
+                <div class="col-md-1">
+                    <label>To Date : </label>
+                </div>
+                <div class="item col-md-2" style="border-color:#ced4da; background-color: transparent;">
+                    @Html.TextBox("todate", DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), new { @class = "form-control", @type = "Date", @placeholder = "yyyy-MM-dd" })
+                </div>
+            </div>
+            <div class="row" style="margin-top: 45px;align-items:center; display: flex;justify-content: space-around;padding:0vw 3vw 0vw 3vw;white-space:nowrap;">
+                <div class="col-md-1">
+                    <label>MainProblem : </label>
+                </div>
+                <div class="item col-md-2" style="border-color:#ced4da; background-color: transparent;">
+                    <select class="selectpicker form-control subsearch" id="mainproblem" name="mainproblem" data-live-search="true">
+                        <option data-tokens="" value="">--</option>
+                        <option data-tokens="Software" value="Software">Software</option>
+                        <option data-tokens="Hardware" value="Hardware">Hardware</option>
+                        <option data-tokens="Other" value="Other">Other</option>
+                        <option data-tokens="Network" value="Network">Network</option>
+                    </select>
+                </div>
+                <div class="col-md-1">
+                    <label>Rows : </label>
+                </div>
+                <div class="item col-md-2" style="border-color:#ced4da; background-color: transparent;">
+                    <div class="form-group">
+                        @Html.DropDownList("maxRows", new SelectListItem[] {
+                    new SelectListItem(){ Text="50", Value = "50"  },
+                    new SelectListItem(){ Text="100", Value = "100"},
+                    new SelectListItem(){ Text="200", Value = "200"  },
+                    new SelectListItem(){ Text="1000", Value = "1000"  }
+                                }, new { @class = "form-control selectpicker subsearch", @name = "state" })
+                    </div>
+                </div>
+                <div class="col-md-1"></div>
+                <div class="item col-md-2" style="border-color:#ced4da; background-color: transparent;"></div>
+            </div>
+            <div class="row justify-content-md-center" style="padding: 50px 50px 0px 50px;">
+                <div id="dropArea" class="border p-5 text-center">
+                    <p>Drag and drop your Excel files here</p>
+                    <p>or</p>
+                    <input type="file" id="fileInput" multiple hidden />
+                    <button type="button" class="btn btn-primary" onclick="triggerFileInput()">Browse Files</button>
+                </div>
+                <div id="progressBars" class="mt-3"></div>
+                <div id="message" class="mt-3"></div>
+            </div>
+            <div class="row justify-content-md-center">
+
+                <div class="col" id="before-submit">
+                    <div id="submit">
+                        <button type="button" data-toggle="tooltip" id="btnsearch" class="btn" style="padding:0px;" onclick="fetchIssueList(1)">
+                            <img src="~/images/icon_search.png" style="width: 50px; height: 50px" class="rounded-lg  p-0" alt="Search" />
+                        </button>
+                        <button type="submit" id="btnclear" class="btn" data-toggle="tooltip" name="cmdButton" title="ล้างข้อมูล" value="Clear" onclick="clearTableData()" style="padding:0px;border: 0px; background-color: transparent;">
+                            <img src="~/images/icon_refresh.png" style="width: 40px; height: 38px" class="rounded-lg p-0" alt="Clear Data" />
+                        </button>
+                        <a id="btnSEExp" data-toggle="tooltip" title="Excel Export Report" style="cursor: pointer; padding:0px;">
+                            <img src="~/images/icon_excel.png" style="width: 50px; height: 50px" class="rounded-lg  p-0" alt="Excel Export Report" />
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<div class="container-fluid">
+    <div class="row" style="background-color: #f8d5ad;width: fit-content;padding: 8px;margin-left: 3px;border-radius: 15px;font-size: 22px;font-weight: bold;margin-bottom: 15px; border:1px solid lightgrey;">
+
+        <div class="col" style="display: flex;justify-content: center;">
+            <a style="white-space:nowrap;align-items: center;display: flex;">Total Records:</a>
+        </div>
+        <div class="col" style="display: flex;justify-content: center;">
+            <a style="white-space:nowrap;display: flex;align-items: center;background-color: rgba(255,255,255,1);padding: 10px 35px 10px 35px;border-radius: 10px;" ;="">
+                <span id="recordCount">-</span>
+            </a>
+        </div>
+    </div>
+    <div class="table-responsive" style="overflow-x: hidden;">
+        <table id="issueTable" class="table table-striped custom-table" style="font-size:14px;">
+            <thead>
+                <tr>
+                    @{
+                        foreach (var header in tableHeaders)
+                        {
+                            if (header == "Open Date" || header == "Main Problem")
+                            {
+                                <th style="text-align:center;" scope="col"> @header </th>
+                            }
+                            else
+                            {
+                                <th style="text-align:center;display:table-cell;max-width: 200px;overflow: hidden; white-space:nowrap;text-overflow:ellipsis;" scope="col"> @header </th>
+                            }
+                        }
+                    }
+
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.issues == null || !Model.issues.Any())
+                {
+                    <tr>
+                        <td colspan="12" style="text-align: center;"> NO DATA </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div class="row">
+            <div class="col-md-2" style="z-index:2;">
+                <p style="font-size:16px;font-weight:bolder;">
+                    Select page :
+                    @Html.DropDownList("seletePageNow", new SelectListItem[] {
+
+                                }, new
+                                {
+                                    @class = "form-control DropDown",
+                                    @onchange = "fetchDataFromDropdown(this);",
+                                })
+                </p>
+            </div>
+            <div class="col colPagination" style="padding-top:10px;z-index:1;">
+
+                <nav>
+                    <div class="pagination" id="pagination">
+                        <li data-page="prev" id="prev">
+                            <a style="color: #7a7a7a;"> < </a>
+                        </li>
+                        <!--	Here the JS Function Will Add the Rows -->
+                        <li data-page="next" id="next">
+                            <a style="color: #7a7a7a;"> > </a>
+                        </li>
+
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal1 fade" id="myModal" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content" id="issueDataModal">
+        </div>
+    </div>
+</div>
+<div id="alertModal" class="modal alert-modal">
+    <div class="modal-content">
+        <p id="alertMessage"></p>
+        <button id="modalClose" class="modal-btn">OK</button>
+    </div>
+</div>
+<div id="loading" class="loading" style="display:none;">
+    <img src="~/images/loading.gif" alt="Loading..." class="imgLoading"/>
+</div>
+<script>
+
+    var selectBank = document.getElementById("bank");
+    const mainproblem = document.getElementById("mainproblem");
+    const maxRow = document.getElementById("maxRows");
+    const dropArea = document.getElementById('dropArea');
+
+    selectBank.addEventListener("change", function () {
+        var selectedBankCode = selectBank.value;
+        // Automatically handles the selected state
+        selectBank.value = selectedBankCode;
+
+    });
+    mainproblem.addEventListener("change", function () {
+
+        var selectedMP = mainproblem.value;
+        // Automatically handles the selected state
+        mainproblem.value = selectedMP;
+
+    });
+    maxRow.addEventListener("change", function () {
+
+        var maxRows = maxRow.value;
+        // Automatically handles the selected state
+        maxRow.value = maxRows;
+
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    // Preventing default browser behavior when dragging a file over the container
+    dropArea.addEventListener('dragover', preventDefaults, false);
+    dropArea.addEventListener('dragenter', preventDefaults, false);
+    dropArea.addEventListener('dragleave', preventDefaults, false);
+
+    // Handling dropping files into the area
+    dropArea.addEventListener('drop', handleDrop);
+
+    dropArea.addEventListener('dragover', () => {
+        dropArea.classList.add('dragOver');
+    });
+
+    dropArea.addEventListener('dragleave', () => {
+        dropArea.classList.remove('dragOver');
+    });
+
+    $('#myModal').on('shown.bs.modal', function () {
+        // Adjust textarea height
+        const textareas = document.querySelectorAll('.auto-resize');
+        textareas.forEach(textarea => {
+            textarea.style.height = ''; // Reset height
+            textarea.style.height = textarea.scrollHeight + 'px'; // Adjust to fit content
+        });
+    });
+    function handleDrop(e) {
+        e.preventDefault();
+        let dt = e.dataTransfer
+        let files = dt.files
+        for (var i = 0; i < files.length; i++) {
+            uploadFile(files[i]);
+        }
+    }
+
+    function triggerFileInput() {
+        // Trigger file input click
+        fileInput.click();
+    }
+    const page = 1; // Page number
+    document.getElementById('fileInput').addEventListener('change', () => {
+
+        const files = document.getElementById('fileInput').files;
+
+        for (let i = 0; i < files.length; i++) {
+            const fileName = files[i].name.toLowerCase();
+            if (fileName.endsWith('.xls') || fileName.endsWith('.xlsx'))
+            {
+                uploadFile(files[i]);
+            }
+            else
+            {
+            displayMessage('Invalid file type. Please upload an Excel file (.xls or .xlsx).', 'alert-danger');
+            }
+        }
+    });
+    function uploadFile(file) {
+        var formData = new FormData();
+        formData.append('file', file);
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '@Url.Action("UploadIssueExcel", "Excel")', true);
+
+        var progressBarContainer = document.createElement('div');
+        progressBarContainer.className = 'progress mb-3';
+        var progressBar = document.createElement('div');
+        progressBar.className = 'progress-bar';
+        progressBar.role = 'progressbar';
+        progressBar.style.width = '0%';
+        progressBar.setAttribute('aria-valuenow', '0');
+        progressBar.setAttribute('aria-valuemin', '0');
+        progressBar.setAttribute('aria-valuemax', '100');
+        progressBar.innerHTML = '0%';
+        progressBarContainer.appendChild(progressBar);
+        document.getElementById('progressBars').appendChild(progressBarContainer);
+
+        xhr.upload.onprogress = function (event) {
+            if (event.lengthComputable) {
+                var percentComplete = Math.round((event.loaded / event.total) * 99);
+                progressBar.style.width = percentComplete + '%';
+                progressBar.setAttribute('aria-valuenow', percentComplete);
+                progressBar.innerHTML = percentComplete + '%';
+            }
+        };
+
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                progressBar.style.width = '100%';
+                progressBar.innerHTML = 'Upload complete';
+                progressBar.classList.add('bg-success');
+                displayMessage('File uploaded and Data imported successfully', 'alert-success');
+            } else {
+                progressBar.innerHTML = 'Upload failed';
+                progressBar.classList.add('bg-danger');
+                displayMessage('File upload failed. Please try again.', 'alert-danger');
+            }
+        };
+
+        xhr.onerror = function () {
+            progressBar.innerHTML = 'Upload error';
+            progressBar.classList.add('bg-danger');
+            displayMessage('An error occurred during the upload. Please try again.', 'alert-danger');
+        };
+
+        xhr.send(formData);
+    }
+
+    function displayMessage(message, alertClass) {
+        var messageContainer = document.getElementById('message');
+        messageContainer.innerHTML = `<div class="alert ${alertClass}" role="alert">${message}</div>`;
+    }
+
+    function fetchIssueList(currentPage) {
+        var messageContainer = document.getElementById('message');
+        messageContainer.innerHTML = '';
+        var progressBar = document.getElementById('progressBars');
+        progressBar.innerHTML = '';
+        $("#loading").show();
+        var fromdate = $("#fromdate").val();
+        var todate = $("#todate").val();
+        // Check if the user has selected a value
+        if (selectBank.value === "") {
+            $("#loading").hide();
+            showAlert("Please select a bank");
+            $('#recordCount').text('-');
+            const selectList = document.getElementById("seletePageNow");
+            selectList.innerHTML = "";
+            const tbody = document.getElementById("issueTable").querySelector("tbody");
+            tbody.innerHTML = "";
+            const row = '<tr><td colspan="12" style="text-align: center;"> NO DATA </td></tr>';
+            tbody.innerHTML += row;
+            const pageElements = document.querySelectorAll('.pagination li:not(#prev, #next)');
+            pageElements.forEach(element => element.remove());
+            return;
+        }
+        $.ajax({
+            type :"GET",
+            url : '@Url.Action("FetchIssueData", "Management")',
+            data: {
+                bankCode: selectBank.value,
+                fromDate : fromdate,
+                toDate : todate,
+                mainProblem: mainproblem.value,
+                page : currentPage,
+                pageSize: maxRow.value
+            },
+            dataType: "json",
+            success: function (response) {
+                var data = response.data;
+                var currentPage = response.currentPage;
+                var pageSize = response.pageSize;
+                var page = response.page;
+                var totalPages = response.totalPages;
+                var totalRecords = response.totalRecords;
+                $('#recordCount').text(totalRecords);
+                addDatatoDropdown(totalPages, currentPage);
+                updateViewTable(data);
+                createPagination(totalPages, currentPage, pageSize);
+            },
+            complete: function() {
+                // Hide the loading GIF once the request is complete (whether successful or not)
+                $("#loading").hide();
+            }
+        });
+    }
+    function updateViewTable(data) {
+        // Clear existing rows in the table
+        const tbody = document.getElementById("issueTable").querySelector("tbody");
+        tbody.innerHTML = "";
+        if (data.length > 0) {
+            data.forEach(issue => {
+                const row = `<tr>
+                                <td style="display:none;">${issue.id}</td>
+                                <td>${issue.job_id}</td>
+                                <td style="text-align: center;">
+                                @using (Html.BeginForm("GetIssueData", "Management", FormMethod.Get, new { id = "issueDataForm" }))
+                                {
+                                    <input type="hidden" name="Id" value="${issue.id}" />
+                                    <img class="btn text-dark" id="btnEdit" alt="View Issue Data" onclick="submitForm(this)"
+                                    style="height: 35px;width: auto;cursor: pointer;border-radius: 40px; letter-spacing: 2px;" src="~/images/button_view.png" />
+                                }
+                                </td>
+                                <td>${issue.contract_no}</td>
+                                <td style="text-align:center;display:table-cell;max-width: 200px;overflow: hidden; white-space:nowrap;text-overflow:ellipsis;" scope="col">${issue.problem_inform}</td>
+                                <td>${issue.mainproblem_name}</td>
+                                <td>${issue.open_date}</td>
+                                <td style="text-align:center;display:table-cell;max-width: 200px;overflow: hidden; white-space:nowrap;text-overflow:ellipsis;" scope="col">${issue.problem_solution}</td>
+                                <td style="display:none;">${issue.mainsolution_name}</td>
+                                <td style="text-align:center;display:table-cell;max-width: 200px;overflow: hidden; white-space:nowrap;text-overflow:ellipsis;display:none;" scope="col">${issue.subproblem_name}</td>
+                                <td style="text-align:center;display:table-cell;max-width: 200px;overflow: hidden; white-space:nowrap;text-overflow:ellipsis;display:none;" scope="col">${issue.subsolution_name}</td>
+                            </tr>`;
+                tbody.innerHTML += row;
+            });
+        }else{
+            const row = '<tr><td colspan="12" style="text-align: center;"> NO DATA </td></tr>';
+            tbody.innerHTML += row;
+        }
+    }
+
+    function submitForm(imgElement) {
+        var form = $(imgElement).closest('form');
+        const actionUrl = form.attr('action');
+        $.ajax({
+            url: actionUrl,
+            type: "GET",
+            data: form.serialize(),
+            success: function (response) {
+                // Inject the partial view response into the modal body
+                $("#issueDataModal").html(response);
+
+                // Show the modal
+                $("#myModal").modal('show');
+            },
+            error: function (xhr, status, error) {
+                alert("Error: " + error);
+            }
+        });
+    }
+
+    function createPagination(totalPages, currentPage,pageSize) {
+
+        const paginationContainer = document.getElementById('pagination');
+        const maxPageShow = 5;
+        // Remove previous page elements
+        const pageElements = document.querySelectorAll('.pagination li:not(#prev, #next)');
+        pageElements.forEach(element => element.remove());
+
+        // Calculate the range of pages to show
+        const startPage = currentPage;
+        const endPage = Math.min(currentPage + maxPageShow - 1, totalPages);
+
+        // Create and append page number elements
+        for (let i = startPage; i <= endPage; i++) {
+            const liElement = document.createElement('li');
+            liElement.setAttribute('data-page', i);
+            // Add the active class to the current page
+            if (i === currentPage) {
+                liElement.classList.add('active');
+            }
+            liElement.innerHTML = `<a style="color: #7a7a7a;"> ${i} </a>`;
+
+            // Add event listener to the page numbers
+            liElement.addEventListener('click', () => {
+                currentPage = i;  // Set current page to the clicked page
+                createPagination(totalPages, currentPage);
+                // Fetch data again for the selected page
+                fetchIssueList(currentPage);
+            });
+
+            paginationContainer.insertBefore(liElement, document.getElementById('next'));
+
+        }
+
+        const next = document.getElementById('next');
+        const prev = document.getElementById('prev');
+
+        // Remove all existing event listeners
+        next.replaceWith(next.cloneNode(true));
+        prev.replaceWith(prev.cloneNode(true));
+
+        //Reassing button again after clear
+        const newNext = document.getElementById('next');
+        const newPrev = document.getElementById('prev');
+
+        // Event listener for the "Next" button
+        newNext.addEventListener('click', () => {
+            if (currentPage + 1 <= totalPages) {
+                currentPage ++;
+                createPagination(totalPages, currentPage);
+                fetchIssueList(currentPage);
+            }
+        });
+
+        // Event listener for the "Prev" button
+        newPrev.addEventListener('click', () => {
+            if (currentPage - 1 >= 1) {
+                currentPage --;
+                createPagination(totalPages, currentPage);
+                fetchIssueList(currentPage);
+            }
+        });
+
+        // Enable/Disable buttons based on current page
+        newNext.classList.toggle('disabled', currentPage >= totalPages - 2);
+        newPrev.classList.toggle('disabled', currentPage === 1);
+
+    }
+    //Purpose: only need to clear grid data for show
+    function clearTableData(){
+         $("#loading").show();
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("IssueManagement", "Management")',
+            dataType: "json",
+            success: function (response) {
+                 $("#loading").hide();
+            }
+        });
+    }
+    $("#btnSEExp").click(function () {
+        $("#loading").show();
+            var fromdate = $("#fromdate").val();
+            var todate = $("#todate").val();
+            // Check if the user has selected a value
+            if (selectBank.value === "") {
+                showAlert("Please select a bank!");
+                return;
+            }
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("ExportIssueToExcel", "Management")',
+                data: {
+                bankCode: selectBank.value,
+                fromDate : fromdate,
+                toDate : todate,
+                mainProblem: mainproblem.value
+                },
+                xhrFields: {
+                    responseType: 'blob'
+                },
+                success: function (blob, status, xhr) {
+                    $("#loading").hide();
+                    var filename = "";
+                    var disposition = xhr.getResponseHeader('Content-Disposition');
+                    if (disposition && disposition.indexOf('attachment') !== -1) {
+                        var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                        var matches = filenameRegex.exec(disposition);
+                        if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
+                    }
+
+                    var link = document.createElement('a');
+                    var url = window.URL.createObjectURL(blob);
+                    link.href = url;
+                    link.download = filename || 'Issue.xlsx';
+                    document.body.appendChild(link);
+                    link.click();
+
+                    setTimeout(function () {
+                        window.URL.revokeObjectURL(url);
+                        link.remove();
+                    }, 100);
+                },
+                error: function (error) {
+                    console.log("Error: " + JSON.stringify(error));
+                }
+            });
+        });
+    function addDatatoDropdown(totalPages,currentPage){
+
+        const selectList = document.getElementById("seletePageNow");
+
+        // Clear existing options
+        selectList.innerHTML = "";
+
+        // Add options dynamically
+        for (let i = 1; i <= totalPages; i++) {
+            const option = document.createElement("option");
+            option.value = i;
+            option.textContent = `${i}`;
+
+            // Mark the current page as selected
+            if (i === currentPage) {
+                option.selected = true;
+            }
+
+            selectList.appendChild(option);
+        }
+    }
+    function fetchDataFromDropdown(dropdown){
+        var selectPage = parseInt(dropdown.value);
+        fetchIssueList(selectPage);
+    }
+
+    function showAlert(message) {
+        const modal = document.getElementById("alertModal");
+        const modalMessage = document.getElementById("alertMessage");
+        const modalTitle = document.getElementById("modalTitle");
+
+        modalMessage.textContent = message;
+
+        modal.style.display = "flex"; // Show the modal
+        document.getElementById("modalClose").addEventListener("click", function () {
+            modal.style.display = "none"; // Hide modal when clicking "OK"
+        });
+    }
+
+</script>
